@@ -8,13 +8,20 @@ namespace yuncms\oauth2\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use League\OAuth2\Server\CryptTrait;
+use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 
 /**
  * Access Token Repository Interface
  * @package yuncms\oauth2\models
  */
-class AccessToken extends ActiveRecord
+class AccessToken extends ActiveRecord implements AccessTokenEntityInterface
 {
+    use CryptTrait;
+
+    use AccessTokenTrait;
+
     const TYPE_BEARER = 1;
     const TYPE_MAC = 2;
 

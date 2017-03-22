@@ -8,6 +8,7 @@ namespace yuncms\oauth2\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use chervand\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
@@ -17,6 +18,7 @@ use chervand\yii2\oauth2\server\components\ResponseTypes\BearerTokenResponse;
  * Class Client
  * @property int $client_id 客户端ID
  * @property int $user_id 所属用户ID
+ * @property string $identifier 客户端标识
  * @property string $name 客户端名称
  * @property string $secret 客户端密钥
  * @property string $redirect_uri 回调域
@@ -125,6 +127,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
     {
         if (parent::beforeSave($insert)) {
             if ($insert) {
+                $this->setAttribute('identifier', Yii::$app->security->generateRandomString(80));
                 $this->setAttribute('client_secret', Yii::$app->security->generateRandomString());
             }
             return true;
@@ -148,7 +151,7 @@ class Client extends ActiveRecord implements ClientEntityInterface
      */
     public function getIdentifier()
     {
-        return $this->client_id;
+        return $this->identifier;
     }
 
     /**
@@ -185,5 +188,10 @@ class Client extends ActiveRecord implements ClientEntityInterface
             }
         }
         return $this->_responseType;
+    }
+
+    public static function getGrantTypeId($grantType, $default = null)
+    {
+        return ArrayHelper::getValue(array_flip(static::grants()), $grantType, $default);
     }
 }

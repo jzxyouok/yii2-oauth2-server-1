@@ -18,6 +18,7 @@ class M170113100603Create_oauth2_client_table extends Migration
             'client_id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull()->comment('所属用户ID'),
             'name' => $this->string()->notNull()->comment('客户端名称'),
+            'identifier' => $this->string(80)->comment('客户端标识'),
             'client_secret' => $this->string(80)->notNull()->comment('密钥'),
             'redirect_uri' => $this->text()->notNull()->comment('回调URL'),
             'grant_type' => $this->smallInteger(),
