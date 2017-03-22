@@ -27,11 +27,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     'dataProvider' => $dataProvider,
                     'layout' => "{items}\n{pager}",
                     'columns' => [
-                        'id',
-                        'secret',
+                        'client_id',
+                        'client_secret',
                         'redirect_uri',
                         'grant_type',
-                        'scope',
                         'created_at:datetime',
                         'updated_at',
                         ['class' => 'yii\grid\ActionColumn'],

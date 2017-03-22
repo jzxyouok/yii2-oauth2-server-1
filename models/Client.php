@@ -12,7 +12,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 
 /**
  * Class Client
- * @property int $id 客户端ID
+ * @property int $client_id 客户端ID
  * @property int $user_id 所属用户ID
  * @property string $name 客户端名称
  * @property string $secret 客户端密钥
@@ -70,7 +70,7 @@ class Client extends ActiveRecord  implements ClientEntityInterface
         return [
             [['name', 'redirect_uri'], 'required'],
             [['created_at', 'updated_at'], 'integer'],
-            [['secret', 'grant_type'], 'string', 'max' => 80],
+            [['client_secret', 'grant_type'], 'string', 'max' => 80],
             [['redirect_uri'], 'string', 'max' => 2000],
             ['state', 'default', 'value' => self::STATE_ACTIVE],
             ['state', 'in', 'range' => [self::STATE_ACTIVE, self::STATE_DISABLED]],
@@ -95,7 +95,7 @@ class Client extends ActiveRecord  implements ClientEntityInterface
     {
         if (parent::beforeSave($insert)) {
             if ($insert) {
-                $this->setAttribute('secret', Yii::$app->security->generateRandomString());
+                $this->setAttribute('client_secret', Yii::$app->security->generateRandomString());
             }
             return true;
         } else {
@@ -128,7 +128,7 @@ class Client extends ActiveRecord  implements ClientEntityInterface
      */
     public function getIdentifier()
     {
-        return $this->id;
+        return $this->client_id;
     }
 
     /**

@@ -11,12 +11,11 @@ use Yii;
 class Module extends \yii\base\Module
 {
     /**
-     * @throws InvalidConfigException
+     * @inheritdoc
      */
     public function init()
     {
         parent::init();
-
         if (!isset(Yii::$app->i18n->translations['oauth2*'])) {
             Yii::$app->i18n->translations['oauth2*'] = [
                 'class' => 'yii\i18n\PhpMessageSource',
