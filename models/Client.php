@@ -9,6 +9,9 @@ namespace yuncms\oauth2\models;
 use Yii;
 use yii\db\ActiveRecord;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use chervand\yii2\oauth2\server\components\ResponseTypes\MacTokenResponse;
+use chervand\yii2\oauth2\server\components\ResponseTypes\BearerTokenResponse;
 
 /**
  * Class Client
@@ -19,22 +22,33 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
  * @property string $redirect_uri 回调域
  * @property string $token_type
  * @property string $grant_type
- * @property int $state 状态
+ * @property int $status 状态
  * @property string $created_at
  * @property string $updated_at
  *
  * @package yuncms\oauth2\models
  */
-class Client extends ActiveRecord  implements ClientEntityInterface
+class Client extends ActiveRecord implements ClientEntityInterface
 {
     //状态
-    const STATE_DISABLED = 0;
-    const STATE_ACTIVE = 1;
+    const STATUS_DISABLED = 0;
+    const STATUS_ACTIVE = 1;
 
     const GRANT_TYPE_AUTHORIZATION_CODE = 1;
     const GRANT_TYPE_IMPLICIT = 2;
     const GRANT_TYPE_PASSWORD = 3;
     const GRANT_TYPE_CLIENT_CREDENTIALS = 4;
+
+    /**
+     * Token 类别
+     */
+    const TOKEN_TYPE_BEARER = AccessToken::TYPE_BEARER;
+    const TOKEN_TYPE_MAC = AccessToken::TYPE_MAC;
+
+    /**
+     * @var ResponseTypeInterface
+     */
+    private $_responseType;
 
     /**
      * @inheritdoc
@@ -62,18 +76,34 @@ class Client extends ActiveRecord  implements ClientEntityInterface
         return '{{%oauth2_client}}';
     }
 
+    public static function grants()
+    {
+        return [
+            static::GRANT_TYPE_AUTHORIZATION_CODE => 'authorization_code',
+            static::GRANT_TYPE_IMPLICIT => 'implicit',
+            static::GRANT_TYPE_PASSWORD => 'password',
+            static::GRANT_TYPE_CLIENT_CREDENTIALS => 'client_credentials',
+        ];
+    }
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['name', 'redirect_uri'], 'required'],
-            [['created_at', 'updated_at'], 'integer'],
-            [['client_secret', 'grant_type'], 'string', 'max' => 80],
+            [['name', 'grant_type', 'redirect_uri'], 'required'],
+            [['grant_type', 'created_at', 'updated_at'], 'integer'],
+            [['client_secret'], 'string', 'max' => 80],
             [['redirect_uri'], 'string', 'max' => 2000],
-            ['state', 'default', 'value' => self::STATE_ACTIVE],
-            ['state', 'in', 'range' => [self::STATE_ACTIVE, self::STATE_DISABLED]],
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['grant_type', 'in', 'range' => [
+                self::GRANT_TYPE_AUTHORIZATION_CODE,
+                self::GRANT_TYPE_IMPLICIT,
+                self::GRANT_TYPE_PASSWORD,
+                self::GRANT_TYPE_CLIENT_CREDENTIALS
+            ]],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DISABLED]],
         ];
     }
 
@@ -101,16 +131,6 @@ class Client extends ActiveRecord  implements ClientEntityInterface
         } else {
             return false;
         }
-    }
-
-    public static function grants()
-    {
-        return [
-            static::GRANT_TYPE_AUTHORIZATION_CODE => 'authorization_code',
-            static::GRANT_TYPE_IMPLICIT => 'implicit',
-            static::GRANT_TYPE_PASSWORD => 'password',
-            static::GRANT_TYPE_CLIENT_CREDENTIALS => 'client_credentials',
-        ];
     }
 
     /**
@@ -149,5 +169,21 @@ class Client extends ActiveRecord  implements ClientEntityInterface
     public function getRedirectUri()
     {
         return $this->redirect_uri;
+    }
+
+    /**
+     * 获取响应类别
+     * @return BearerTokenResponse|MacTokenResponse|ResponseTypeInterface
+     */
+    public function getResponseType()
+    {
+        if (!$this->_responseType instanceof ResponseTypeInterface) {
+            if (isset($this->token_type) && $this->token_type === static::TOKEN_TYPE_MAC) {
+                $this->_responseType = new MacTokenResponse();
+            } else {
+                $this->_responseType = new BearerTokenResponse();
+            }
+        }
+        return $this->_responseType;
     }
 }

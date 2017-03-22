@@ -24,7 +24,7 @@ class M170113100603Create_oauth2_client_table extends Migration
             'domain' => $this->string()->comment('域名'),
             'provider' => $this->string()->comment('提供方'),
             'icp' => $this->string()->comment('ICP备案'),
-            'state' => $this->string()->comment('状态'),
+            'status' => $this->string()->comment('状态'),
             'created_at' => $this->integer()->notNull(),
             'updated_at' => $this->integer()->notNull(),
         ], $tableOptions);

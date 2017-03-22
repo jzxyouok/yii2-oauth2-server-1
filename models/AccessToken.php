@@ -15,6 +15,9 @@ use yii\db\ActiveRecord;
  */
 class AccessToken extends ActiveRecord
 {
+    const TYPE_BEARER = 1;
+    const TYPE_MAC = 2;
+
     /**
      * @inheritdoc
      */

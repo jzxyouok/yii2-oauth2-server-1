@@ -15,6 +15,12 @@ use yii\bootstrap\ActiveForm;
     'validateOnBlur' => false,
 ]); ?>
 <?= $form->field($model, 'name') ?>
+<?= $form->field($model, 'grant_type')->dropDownList([
+    1 => 'Authorization Code Grant',
+    2 => 'Implicit Grant',
+    3 => 'Password Grant',
+    4 => 'Client Credentials Grant'
+]); ?>
 <?= $form->field($model, 'domain') ?>
 <?= $form->field($model, 'provider') ?>
 <?= $form->field($model, 'icp') ?>
